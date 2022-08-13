@@ -1,18 +1,22 @@
 import streamlit as st
 
+st.set_page_config(
+    page_title="Home",
+)
+
 st.title('Annotated Transformers')
 
 st.write("A collection of annotated transformer architectures in Meta's [PyTorch](https://pytorch.org/) and DeepMind's "
          "[Haiku](https://github.com/deepmind/dm-haiku).")
 
+st.header("[Vision Transformer](Vision_Transformer)")
 st.markdown('''
-### [Vision Transformer]()
 - [Research Paper](https://arxiv.org/abs/2010.11929)
 - [Official Repository](https://github.com/google-research/vision_transformer)
 ''')
 
 ## Citations
-
+st.header("Citations")
 st.markdown('''
 @article{DBLP:journals/corr/abs-2010-11929,
   author    = {Alexey Dosovitskiy and

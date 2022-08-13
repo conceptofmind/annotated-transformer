@@ -89,6 +89,8 @@ import jax
 from jax import random, nn
 import jax.numpy as jnp
 
+import optax
+
 from einops import rearrange, repeat
     '''
     st.code(haiku_imports, language)
@@ -143,6 +145,10 @@ st.header('Model Architecture', anchor='Model')
 
 st.subheader('Pre-Normalization Layer', anchor='prenorm')
 
+st.latex(r'''
+y = \frac{x - \mathrm{E}[x]}{ \sqrt{\mathrm{Var}[x] + \epsilon}} * \gamma + \beta
+''')
+
 tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
 
 with tab_1:
@@ -172,7 +178,7 @@ class PreNorm(nn.Module):
 st.subheader('Feed-Forward Network', anchor='feedforward')
 
 st.latex(r'''
-GELU(x) = 0.5 * x * (1 + \tanh(\sqrt{\frac 2 \pi} * (x + 0.044715 * x^3)))
+\text{GELU}(x) = 0.5 * x * \bigg(1 + \tanh\bigg(\sqrt{\frac 2 \pi} * (x + 0.044715 * x^3)\bigg)\bigg)
 ''')
 
 tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
@@ -285,7 +291,9 @@ class Attention(nn.Module):
     '''
     st.code(pytorch, language)
 
-st.subheader('Transformer Network', anchor='transformer')
+st.subheader('Transformer Encoder', anchor='transformer')
+
+#st.image('')
 
 tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
 
@@ -453,6 +461,94 @@ class ViT(nn.Module):
 # Section for Training
 
 st.header('Training', anchor='Training')
+
+st.subheader('Image Augmentation')
+
+tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+
+with tab_1:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+with tab_2:
+    pytorch = '''
+train_transforms = transforms.Compose(
+    [
+        transforms.Resize((224, 224)),
+        transforms.RandomResizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+    ]
+)
+
+val_transforms = transforms.Compose(
+    [
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+    ]
+)
+
+
+test_transforms = transforms.Compose(
+    [
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+    ]
+)
+    '''
+    st.code(pytorch, language)
+
+st.subheader('Loss function')
+
+tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+
+with tab_1:
+    haiku = '''
+criterion = optax.softmax_cross_entropy()
+    '''
+    st.code(haiku, language)
+
+with tab_2:
+    pytorch = '''
+criterion = nn.CrossEntropyLoss()
+    '''
+    st.code(pytorch, language)
+
+st.subheader('Optimizer')
+
+tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+
+with tab_1:
+    haiku = '''
+optimizer = optax.adam(learning_rate=0.001, b1=0.9, b2=0.99)
+    '''
+    st.code(haiku, language)
+
+with tab_2:
+    pytorch = '''
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+    '''
+    st.code(pytorch, language)
+
+st.subheader('Learning Rate Scheduler')
+
+tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+
+with tab_1:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+with tab_2:
+    pytorch = '''
+scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
+    '''
+    st.code(pytorch, language)
 
 # Section for References
 
