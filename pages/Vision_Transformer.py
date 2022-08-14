@@ -99,11 +99,32 @@ with imports_tab_2:
     pytorch_imports = '''
 import torch
 from torch import nn
+from torch.utils.data import DataLoader, Dataset
+from torchvision import datasets, transforms
 
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
     '''
     st.code(pytorch_imports, language)
+
+# Configuration for Global Variables
+
+st.subheader('Configuration', anchor='')
+
+tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+
+with tab_1:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+with tab_2:
+    pytorch = '''
+class CFG:
+    learning_rate = 0.001
+    '''
+    st.code(pytorch, language)
 
 # Helper functions section
 
@@ -524,13 +545,13 @@ tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
 
 with tab_1:
     haiku = '''
-optimizer = optax.adam(learning_rate=0.001, b1=0.9, b2=0.99)
+optimizer = optax.adam(learning_rate=CFG.learning_rate, b1=0.9, b2=0.99)
     '''
     st.code(haiku, language)
 
 with tab_2:
     pytorch = '''
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=CFG.learning_rate)
     '''
     st.code(pytorch, language)
 
