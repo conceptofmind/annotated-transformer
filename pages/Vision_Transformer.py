@@ -23,6 +23,7 @@ st.markdown('''
 - [Prerequisites](#Prerequisites)
     - [Installation](#Installs)
     - [Imports](#Imports)
+    - [Configuration](#Configuration)
     - [Helper Functions](#Helpers)
 - [Model Architecture](#Model)
     - [Pre-Normalization Layer](#prenorm)
@@ -109,13 +110,14 @@ from einops.layers.torch import Rearrange
 
 # Configuration for Global Variables
 
-st.subheader('Configuration', anchor='')
+st.subheader('Configuration', anchor='Configuration')
 
 tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
 
 with tab_1:
     haiku = '''
-
+class CFG:
+    learning_rate = 0.001
     '''
     st.code(haiku, language)
 
@@ -136,8 +138,6 @@ tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
 
 with tab_1:
     haiku = '''
-LayerNorm = partial(hk.LayerNorm, create_scale=True, create_offset=False, axis=-1)
-
 def pair(t):
     return t if isinstance(t, tuple) else (t, t)
     '''
@@ -166,6 +166,23 @@ st.header('Model Architecture', anchor='Model')
 
 st.subheader('Pre-Normalization Layer', anchor='prenorm')
 
+st.write('''
+Layer normalisation explicitly controls the mean and variance of individual neural network activations
+
+Next, the output reinforced by residual connections goes through a layer normalization layer. Layer normalization, similar to batch normalization is a way to reduce the “covariate shift” in neural networks allowing them to be trained faster and achieve better performance. Covariate shift refers to changes in the distribution of neural network activations (caused by changes in the data distribution), that transpires as the model goes through model training. Such changes in the distribution hurts consistency during model training and negatively impact the model. It was introduced in the paper, “Layer Normalization” by Ba et. al. (https://arxiv.org/pdf/1607.06450.pdf).
+
+However, layer normalization computes mean and variance (i.e. the normalization terms) of the activations in such a way that, the normalization terms are the same for every hidden unit. In other words, layer normalization has a single mean and a variance value for all the hidden units in a layer. This is in contrast to batch normalization that maintains individual mean and variance values for each hidden unit in a layer.  Moreover, unlike batch normalization, layer normalization does not average over the samples in the batch, rather leave the averaging out and have different normalization terms for different inputs. By having a mean and variance per-sample, layer normalization gets rid of the dependency on the mini-batch size. For more details about this method, please refer the original paper.
+
+''')
+
+st.latex(r'''
+\mu^{l} = {\frac 1 H} \displaystyle\sum_{i=1}^H a_i^l
+''')
+
+st.latex(r'''
+\sigma^l = \sqrt{{\frac 1 H} \displaystyle\sum_{i=1}^H (a_i^l - \mu^l)^2}
+''')
+
 st.latex(r'''
 y = \frac{x - \mathrm{E}[x]}{ \sqrt{\mathrm{Var}[x] + \epsilon}} * \gamma + \beta
 ''')
@@ -174,6 +191,8 @@ tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
 
 with tab_1:
     haiku = '''
+LayerNorm = partial(hk.LayerNorm, create_scale=True, create_offset=False, axis=-1)
+    
 class PreNorm(hk.Module):
     def __init__(self, fn):
         super(PreNorm, self).__init__()
