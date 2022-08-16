@@ -112,6 +112,8 @@ from einops.layers.torch import Rearrange
 
 st.subheader('Configuration', anchor='Configuration')
 
+st.write(" A configuration class for defining global variables to be used for training the model.")
+
 tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
 
 with tab_1:
@@ -217,7 +219,13 @@ class PreNorm(nn.Module):
 
 st.subheader('Feed-Forward Network', anchor='feedforward')
 
-st.write("")
+st.write("The Gaussian Error Linear Unit (GELU) is defined as:")
+
+st.latex(r"""
+\text{GELU}(x) = xP(X \leq x) = x\Phi(x) = x * {\frac 1 2} \big[1 = \text{erf}\big(x/\sqrt2\big)\big]
+""")
+
+st.write("GELU is approximated with:")
 
 st.latex(r'''
 \text{GELU}(x) = 0.5 * x * \bigg(1 + \tanh\bigg(\sqrt{\frac 2 \pi} * (x + 0.044715 * x^3)\bigg)\bigg)
