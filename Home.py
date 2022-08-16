@@ -7,7 +7,7 @@ st.set_page_config(
 st.title('Annotated Transformers')
 
 st.write("A collection of annotated transformer architectures in Meta's [PyTorch](https://pytorch.org/) and DeepMind's "
-         "[Haiku](https://github.com/deepmind/dm-haiku).")
+         "[Haiku](https://github.com/deepmind/dm-haiku), [Optax](https://github.com/deepmind/optax), and Google's [JAX](https://jax.readthedocs.io/en/latest/index.html).")
 
 st.header("[Vision Transformer](Vision_Transformer)")
 st.markdown('''

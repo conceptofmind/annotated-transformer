@@ -217,6 +217,8 @@ class PreNorm(nn.Module):
 
 st.subheader('Feed-Forward Network', anchor='feedforward')
 
+st.write("")
+
 st.latex(r'''
 \text{GELU}(x) = 0.5 * x * \bigg(1 + \tanh\bigg(\sqrt{\frac 2 \pi} * (x + 0.044715 * x^3)\bigg)\bigg)
 ''')
@@ -335,6 +337,12 @@ st.subheader('Transformer Encoder', anchor='transformer')
 
 #st.image('')
 
+st.write("""
+The Transformer encoder (Vaswani et al., 2017) consists of alternating layers of multiheaded selfattention (MSA, see Appendix A) and MLP blocks (Eq. 2, 3). Layernorm (LN) is applied before
+every block, and residual connections after every block (Wang et al., 2019; Baevski & Auli, 2019).
+""")
+
+
 tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
 
 with tab_1:
@@ -376,6 +384,13 @@ class Transformer(nn.Module):
     st.code(pytorch, language)
 
 st.subheader('Vision Transformer Model', anchor='visiontransformer')
+
+st.write("""
+We split an image into fixed-size patches, linearly embed each of them,
+add position embeddings, and feed the resulting sequence of vectors to a standard Transformer
+encoder. In order to perform classification, we use the standard approach of adding an extra learnable
+“classification token” to the sequence.
+""")
 
 tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
 
