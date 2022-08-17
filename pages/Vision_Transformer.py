@@ -219,23 +219,39 @@ class PreNorm(nn.Module):
 
 st.subheader('Feed-Forward Network', anchor='feedforward')
 
-st.write("The Gaussian Error Linear Unit (GELU) is defined as:")
 
+
+st.write("""
+We propose the Gaussian Error Linear Unit (GELU), a high-performing neural
+network activation function. The GELU activation function is xΦ(x), where Φ(x)
+the standard Gaussian cumulative distribution function. The GELU nonlinearity
+weights inputs by their value
+""")
+st.write("The Gaussian Error Linear Unit (GELU) is defined as:")
 st.latex(r"""
 \text{GELU}(x) = xP(X \leq x) = x\Phi(x) = x * {\frac 1 2} \big[1 = \text{erf}\big(x/\sqrt2\big)\big]
 """)
-
-st.write("GELU is approximated with:")
-
+st.write("GELU is approximated with if greater feedforward speed is worth the cost of exactness.:")
 st.latex(r'''
 \text{GELU}(x) = 0.5 * x * \bigg(1 + \tanh\bigg(\sqrt{\frac 2 \pi} * (x + 0.044715 * x^3)\bigg)\bigg)
 ''')
+
+st.write('dropout')
+st.write("""
+During training, randomly zeroes some of the elements of the input tensor with probability p using samples from a Bernoulli distribution. Each channel will be zeroed out independently on every forward call.
+
+This has proven to be an effective technique for regularization and preventing the co-adaptation of neurons as described in the paper Improving neural networks by preventing co-adaptation of feature detectors .
+
+Furthermore, the outputs are scaled by a factor of \frac{1}{1-p} 
+  during training. This means that during evaluation the module simply computes an identity function.
+p – probability of an element to be zeroed. Default: 0.5
+""")
 
 tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
 
 with tab_1:
     haiku = '''
-class FeedForward(hk.Module):
+class MLP(hk.Module):
     def __init__(self, dim, hidden_dim):
         super(FeedForward, self).__init__()
         self.linear1 = hk.Linear(hidden_dim)
@@ -362,7 +378,7 @@ class Transformer(hk.Module):
         for _ in range(depth):
             self.layers.append([
                 PreNorm(Attention(dim, heads=heads, dim_head=dim_head)),
-                PreNorm(FeedForward(dim, mlp_dim))
+                PreNorm(MLP(dim, mlp_dim))
             ])
     def __call__(self, x):
         for attn, ff in self.layers:
