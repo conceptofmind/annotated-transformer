@@ -55,16 +55,16 @@ st.write("You will first need to install either DeepMind's Haiku and Google's Ja
 
 st.subheader('Installation', anchor='Installs')
 
-installs_tab_1, installs_tab_2 = st.tabs(["Haiku", "PyTorch"])
+installs_tab_1, installs_tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with installs_tab_1:
+with installs_tab_2:
     st.write('Install Haiku:')
     haiku_installs = '''
 $ pip3 install -U jax jaxlib dm-haiku
     '''
     st.code(haiku_installs, language='bash')
 
-with installs_tab_2:
+with installs_tab_1:
     st.write('Install PyTorch:')
     pytorch_installs = '''
 $ pip3 install -U torch torchvision torchaudio
@@ -77,9 +77,9 @@ st.subheader('Imports', anchor='Imports')
 
 st.write("You will need to import the necessary libraries in your Python file or Jupyter Notebook.")
 
-imports_tab_1, imports_tab_2 = st.tabs(["Haiku", "PyTorch"])
+imports_tab_1, imports_tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with imports_tab_1:
+with imports_tab_2:
     haiku_imports = '''
 from functools import partial
 
@@ -96,7 +96,7 @@ from einops import rearrange, repeat
     '''
     st.code(haiku_imports, language)
 
-with imports_tab_2:
+with imports_tab_1:
     pytorch_imports = '''
 import torch
 from torch import nn
@@ -114,16 +114,16 @@ st.subheader('Configuration', anchor='Configuration')
 
 st.write(" A configuration class for defining global variables to be used for training the model.")
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 class CFG:
     learning_rate = 0.001
     '''
     st.code(haiku, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 class CFG:
     learning_rate = 0.001
@@ -136,9 +136,9 @@ st.subheader('Helper Functions', anchor='Helpers')
 
 st.write('Define some basic helper functions for the Model.')
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 def pair(t):
     return t if isinstance(t, tuple) else (t, t)
@@ -155,7 +155,7 @@ class IdentityLayer(hk.Module):
     '''
     st.code(identity_layer_class, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 def pair(t):
     return t if isinstance(t, tuple) else (t, t)
@@ -189,9 +189,9 @@ st.latex(r'''
 y = \frac{x - \mathrm{E}[x]}{ \sqrt{\mathrm{Var}[x] + \epsilon}} * \gamma + \beta
 ''')
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 LayerNorm = partial(hk.LayerNorm, create_scale=True, create_offset=False, axis=-1)
     
@@ -205,7 +205,7 @@ class PreNorm(hk.Module):
     '''
     st.code(haiku, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 class PreNorm(nn.Module):
     def __init__(self, dim, fn):
@@ -247,9 +247,9 @@ Furthermore, the outputs are scaled by a factor of \frac{1}{1-p}
 p – probability of an element to be zeroed. Default: 0.5
 """)
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 class MLP(hk.Module):
     def __init__(self, dim, hidden_dim):
@@ -266,7 +266,7 @@ class MLP(hk.Module):
     '''
     st.code(haiku, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 class FeedForward(nn.Module):
     def __init__(self, dim, hidden_dim, dropout = 0.):
@@ -285,9 +285,9 @@ class FeedForward(nn.Module):
 
 st.subheader('Attention Mechanism', anchor='attention')
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 class Attention(hk.Module):
     def __init__(self, dim, heads = 8, dim_head = 64):
@@ -321,7 +321,7 @@ class Attention(hk.Module):
     '''
     st.code(haiku, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 class Attention(nn.Module):
     def __init__(self, dim, heads = 8, dim_head = 64, dropout = 0.):
@@ -367,9 +367,9 @@ every block, and residual connections after every block (Wang et al., 2019; Baev
 """)
 
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 class Transformer(hk.Module):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim):
@@ -388,7 +388,7 @@ class Transformer(hk.Module):
     '''
     st.code(haiku, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 class Transformer(nn.Module):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):
@@ -416,9 +416,9 @@ encoder. In order to perform classification, we use the standard approach of add
 “classification token” to the sequence.
 """)
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 class VitBase(hk.Module):
     def __init__(self, *, image_size, patch_size, num_classes, dim, depth, heads, mlp_dim, pool = 'cls', channels = 3, dim_head = 64):
@@ -486,7 +486,7 @@ def ViT(**kwargs):
     '''
     st.code(haiku_transform, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 class ViT(nn.Module):
     def __init__(self, *, image_size, patch_size, num_classes, dim, depth, heads, mlp_dim, pool = 'cls', channels = 3, dim_head = 64, dropout = 0., emb_dropout = 0.):
@@ -543,15 +543,15 @@ st.header('Training', anchor='Training')
 
 st.subheader('Image Augmentation')
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 
     '''
     st.code(haiku, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 train_transforms = transforms.Compose(
     [
@@ -583,15 +583,15 @@ test_transforms = transforms.Compose(
 
 st.subheader('Loss function')
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 criterion = optax.softmax_cross_entropy()
     '''
     st.code(haiku, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 criterion = nn.CrossEntropyLoss()
     '''
@@ -599,15 +599,15 @@ criterion = nn.CrossEntropyLoss()
 
 st.subheader('Optimizer')
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 optimizer = optax.adam(learning_rate=CFG.learning_rate, b1=0.9, b2=0.99)
     '''
     st.code(haiku, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 optimizer = optim.Adam(model.parameters(), lr=CFG.learning_rate)
     '''
@@ -615,15 +615,15 @@ optimizer = optim.Adam(model.parameters(), lr=CFG.learning_rate)
 
 st.subheader('Learning Rate Scheduler')
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_2:
     haiku = '''
 
     '''
     st.code(haiku, language)
 
-with tab_2:
+with tab_1:
     pytorch = '''
 scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
     '''
@@ -638,16 +638,17 @@ st.header('References', anchor='References')
 st.header('Citations', anchor='Citations')
 
 
-tab_1, tab_2 = st.tabs(["Haiku", "PyTorch"])
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
 with tab_1:
+    pytorch = '''
+
+    '''
+    st.code(pytorch, language)
+
+with tab_2:
     haiku = '''
 
     '''
     st.code(haiku, language)
 
-with tab_2:
-    pytorch = '''
-
-    '''
-    st.code(pytorch, language)
