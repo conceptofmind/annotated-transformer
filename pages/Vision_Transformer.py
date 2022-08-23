@@ -20,6 +20,8 @@ st.header('Table of contents')
 
 st.markdown('''
 - [Introduction](#Introduction)
+    - [Paper Abstract](#PaperAbstract)
+    - [Acknowledgment](#Acknowledgement)
 - [Prerequisites](#Prerequisites)
     - [Installation](#Installs)
     - [Imports](#Imports)
@@ -32,6 +34,19 @@ st.markdown('''
     - [Transformer Network](#transformer)
     - [Vision Transformer Model](#visiontransformer)
 - [Training](#Training)
+    - [Initialize Model](#InitializeModel)
+    - [Image Augmentation](#ImageAugmentation)
+    - [CIFAR10 Dataset](#Dataset)
+    - [Dataloader](#Dataloader)
+    - [Loss Function](#LossFunction)
+    - [Optimizer](#Optimizer)
+    - [Learning Rate Scheduler](#LRS)
+    - [Train Step](#TrainStep)
+    - [Validation Step](#ValidationStep)
+    - [Training Loop](#TrainingLoop)
+    - [Save Trained Model](#SaveModel)
+    - [Load Saved Model](#LoadModel)
+    - [Make Predictions](#MakePredictions)
 - [References](#References)
 - [Citations](#Citations) 
 ''')
@@ -40,9 +55,19 @@ st.markdown('''
 
 st.header('Introduction', anchor='Introduction')
 
+st.subheader('Paper Abstract', anchor='PaperAbstract')
+
 st.markdown('''"
 While the Transformer architecture has become the de-facto standard for natural language processing tasks, its applications to computer vision remain limited. In vision, attention is either applied in conjunction with convolutional networks, or used to replace certain components of convolutional networks while keeping their overall structure in place. We show that this reliance on CNNs is not necessary and a pure transformer applied directly to sequences of image patches can perform very well on image classification tasks. When pre-trained on large amounts of data and transferred to multiple mid-sized or small image recognition benchmarks (ImageNet, CIFAR-100, VTAB, etc.), Vision Transformer (ViT) attains excellent results compared to state-of-the-art convolutional networks while requiring substantially fewer computational resources to train.
 " - Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, Jakob Uszkoreit, Neil Houlsby''')
+
+# Section for acknowledgement
+
+st.subheader('Acknowledgement', anchor='Acknowledgement')
+
+st.write('''
+
+''')
 
 # Section for Prereqs
 
@@ -567,7 +592,7 @@ class ViT(nn.Module):
 
 st.header('Training', anchor='Training')
 
-st.subheader('Initialize Vision Transformer Model')
+st.subheader('Initialize Vision Transformer Model', anchor='InitializeModel')
 
 st.write('')
 
@@ -596,7 +621,7 @@ with tab_haiku:
     st.code(haiku, language)
 
 
-st.subheader('Image Augmentation')
+st.subheader('Image Augmentation', anchor='ImageAugmentation')
 
 st.write('')
 
@@ -636,6 +661,20 @@ test_transforms = T.Compose([
 st.subheader('Dataset', anchor='Dataset')
 
 st.write('''
+Here is an example of how to load the Fashion-MNIST dataset from TorchVision. Fashion-MNIST is a dataset of Zalando’s article images consisting of 60,000 training examples and 10,000 test examples. Each example comprises a 28×28 grayscale image and an associated label from one of 10 classes.
+
+We load the FashionMNIST Dataset with the following parameters:
+- root is the path where the train/test data is stored,
+
+- train specifies training or test dataset,
+
+- download=True downloads the data from the internet if it’s not available at root.
+
+- transform and target_transform specify the feature and label transformations
+
+
+
+
 The CIFAR-10 dataset consists of 60000 32x32 colour images in 10 classes, with 6000 images per class. There are 50000 
 training images and 10000 test images.
 
@@ -686,6 +725,22 @@ with tab_2:
 
 st.subheader('Dataloader', anchor='Dataloader')
 
+st.write('''
+Data loader. Combines a dataset and a sampler, and provides an iterable over the given dataset.
+
+The DataLoader supports both map-style and iterable-style datasets with single- or multi-process loading, customizing loading order and optional automatic batching (collation) and memory pinning.
+
+See torch.utils.data documentation page for more details.
+
+dataset (Dataset) – dataset from which to load the data.
+
+batch_size (int, optional) – how many samples per batch to load (default: 1).
+
+shuffle (bool, optional) – set to True to have the data reshuffled at every epoch (default: False).
+
+PyTorch provides two data primitives: torch.utils.data.DataLoader and torch.utils.data.Dataset that allow you to use pre-loaded datasets as well as your own data. Dataset stores the samples and their corresponding labels, and DataLoader wraps an iterable around the Dataset to enable easy access to the samples.
+''')
+
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
 with tab_1:
@@ -716,7 +771,7 @@ with tab_2:
     '''
     st.code(haiku, language)
 
-
+# section for loss function
 
 st.subheader('Loss function')
 
@@ -734,6 +789,8 @@ criterion = nn.CrossEntropyLoss()
     '''
     st.code(pytorch, language)
 
+# section for optimizer
+
 st.subheader('Optimizer')
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
@@ -749,6 +806,8 @@ with tab_1:
 optimizer = optim.Adam(model.parameters(), lr=CFG.learning_rate)
     '''
     st.code(pytorch, language)
+
+# section for learning rate scheduler
 
 st.subheader('Learning Rate Scheduler')
 
@@ -766,6 +825,127 @@ scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
     '''
     st.code(pytorch, language)
 
+# Section for training step
+
+st.subheader('Train Step', anchor='TrainStep')
+
+st.write('''
+
+''')
+
+tab_pytorch, tab_haiku = st.tabs(["PyTorch", "Haiku"])
+
+with tab_pytorch:
+    pytorch = '''
+
+    '''
+    st.code(pytorch, language)
+
+with tab_haiku:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+# Section for Validation Step
+
+st.subheader('Validation Step', anchor='ValidationStep')
+
+st.write('''
+
+''')
+
+tab_pytorch, tab_haiku = st.tabs(["PyTorch", "Haiku"])
+
+with tab_pytorch:
+    pytorch = '''
+
+    '''
+    st.code(pytorch, language)
+
+with tab_haiku:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+# Section for Training Loop
+
+st.subheader('Training Loop', anchor='TrainingLoop')
+
+st.write('''
+
+''')
+
+tab_pytorch, tab_haiku = st.tabs(["PyTorch", "Haiku"])
+
+with tab_pytorch:
+    pytorch = '''
+
+    '''
+    st.code(pytorch, language)
+
+with tab_haiku:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+# Section for Saving Model
+
+st.subheader('Save Trained Model', anchor='SaveModel')
+
+tab_pytorch, tab_haiku = st.tabs(["PyTorch", "Haiku"])
+
+with tab_pytorch:
+    pytorch = '''
+
+    '''
+    st.code(pytorch, language)
+
+with tab_haiku:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+# Section for Loading Model
+
+st.subheader('Load Trained Model', anchor='LoadModel')
+
+tab_pytorch, tab_haiku = st.tabs(["PyTorch", "Haiku"])
+
+with tab_pytorch:
+    pytorch = '''
+
+    '''
+    st.code(pytorch, language)
+
+with tab_haiku:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+# Section for Making Predictions
+
+st.subheader('Make Predictions', anchor='MakePredictions')
+
+tab_pytorch, tab_haiku = st.tabs(["PyTorch", "Haiku"])
+
+with tab_pytorch:
+    pytorch = '''
+
+    '''
+    st.code(pytorch, language)
+
+with tab_haiku:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+
 # Section for References
 
 st.header('References', anchor='References')
@@ -775,6 +955,8 @@ st.write('https://www.cs.toronto.edu/~kriz/cifar.html')
 # Section for Citations
 
 st.header('Citations', anchor='Citations')
+
+
 
 
 tab_pytorch, tab_haiku = st.tabs(["PyTorch", "Haiku"])
