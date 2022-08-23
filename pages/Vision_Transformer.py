@@ -101,7 +101,7 @@ with imports_tab_1:
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
-from torchvision import datasets, transforms
+from torchvision import datasets, transforms as T
 
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
@@ -127,6 +127,12 @@ with tab_1:
     pytorch = '''
 class CFG:
     learning_rate = 0.001
+    policy = T.AutoAugmentPolicy.CIFAR10
+    image_size = 224
+    num_classes = 10
+    batch_size = 4
+    device = 'cuda'
+    seed = 42
     '''
     st.code(pytorch, language)
 
@@ -157,6 +163,11 @@ class IdentityLayer(hk.Module):
 
 with tab_1:
     pytorch = '''
+def seed_environment(seed):
+      torch.manual_seed(seed)
+
+seed_environment(CFG.seed)  
+
 def pair(t):
     return t if isinstance(t, tuple) else (t, t)
     '''
@@ -489,7 +500,22 @@ def ViT(**kwargs):
 with tab_1:
     pytorch = '''
 class ViT(nn.Module):
-    def __init__(self, *, image_size, patch_size, num_classes, dim, depth, heads, mlp_dim, pool = 'cls', channels = 3, dim_head = 64, dropout = 0., emb_dropout = 0.):
+    def __init__(
+        self, 
+        *, 
+        image_size, 
+        patch_size, 
+        num_classes, 
+        dim, 
+        depth, 
+        heads, 
+        mlp_dim, 
+        pool = 'cls', 
+        channels = 3, 
+        dim_head = 64, 
+        dropout = 0., 
+        emb_dropout = 0.
+    ):
         super().__init__()
         image_height, image_width = pair(image_size)
         patch_height, patch_width = pair(patch_size)
@@ -541,7 +567,38 @@ class ViT(nn.Module):
 
 st.header('Training', anchor='Training')
 
+st.subheader('Initialize Vision Transformer Model')
+
+st.write('')
+
+tab_pytorch, tab_haiku = st.tabs(["PyTorch", "Haiku"])
+
+with tab_pytorch:
+    pytorch = '''
+model = ViT(
+    image_size = CFG.image_size,
+    patch_size = 16,
+    num_classes = CFG.num_classes,
+    dim = 1024,
+    depth = 6,
+    heads = 16,
+    mlp_dim = 2048,
+    dropout = 0.1,
+    emb_dropout = 0.1
+).to(CFG.device)
+    '''
+    st.code(pytorch, language)
+
+with tab_haiku:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+
 st.subheader('Image Augmentation')
+
+st.write('')
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
@@ -553,33 +610,113 @@ with tab_2:
 
 with tab_1:
     pytorch = '''
-train_transforms = transforms.Compose(
-    [
-        transforms.Resize((224, 224)),
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-    ]
+train_transforms = T.Compose([
+        T.Resize((CFG.image_size, CFG.image_size)),
+        T.AutoAugment(policy = CFG.policy),
+        T.ToTensor(),
+        T.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+    ])
+
+validation_transforms = T.Compose([
+        T.Resize(CFG.image_size),
+        T.ToTensor(),
+        T.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+    ])
+
+test_transforms = T.Compose([
+        T.Resize(CFG.image_size),
+        T.ToTensor(),
+        T.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+    ])
+    '''
+    st.code(pytorch, language)
+
+# Section for Dataset
+
+st.subheader('Dataset', anchor='Dataset')
+
+st.write('''
+The CIFAR-10 dataset consists of 60000 32x32 colour images in 10 classes, with 6000 images per class. There are 50000 
+training images and 10000 test images.
+
+The dataset is divided into five training batches and one test batch, each with 10000 images. The test batch contains 
+exactly 1000 randomly-selected images from each class. The training batches contain the remaining images in random 
+order, but some training batches may contain more images from one class than another. Between them, the training batches
+ contain exactly 5000 images from each class.
+ 
+ 
+The CIFAR-10 dataset (Canadian Institute For Advanced Research) is a collection of images that are commonly used to train machine learning and computer vision algorithms. It is one of the most widely used datasets for machine learning research.[1][2] The CIFAR-10 dataset contains 60,000 32x32 color images in 10 different classes.[3] The 10 different classes represent airplanes, cars, birds, cats, deer, dogs, frogs, horses, ships, and trucks. There are 6,000 images of each class.[4]
+
+Computer algorithms for recognizing objects in photos often learn by example. CIFAR-10 is a set of images that can be used to teach a computer how to recognize objects. Since the images in CIFAR-10 are low-resolution (32x32), this dataset can allow researchers to quickly try different algorithms to see what works.
+
+CIFAR-10 is a labeled subset of the 80 million tiny images dataset. When the dataset was created, students were paid to label all of the images.[5]
+
+Various kinds of convolutional neural networks tend to be the best at recognizing the images in CIFAR-10.
+''')
+
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
+
+with tab_1:
+    pytorch = '''
+train_dataset = CIFAR10(
+    root = './cifar_data/,
+    train = True,
+    transform = train_transform,
 )
 
-val_transforms = transforms.Compose(
-    [
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-    ]
+test_dataset = CIFAR10(
+    root = './cifar_data/,
+    train = False,
+    transform = test_transform,
 )
 
+validation_dataset_size = int(len(test_dataset) * 0.8)
+test_dataset_size = len(test_dataset) - validation_dataset_size
+validation_dataset, test_dataset = torch.utils.data.random_split(test_dataset, [validation_dataset_size, test_dataset_size])
+    '''
+    st.code(pytorch, language)
 
-test_transforms = transforms.Compose(
-    [
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-    ]
+with tab_2:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+# Section for Dataloader
+
+st.subheader('Dataloader', anchor='Dataloader')
+
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
+
+with tab_1:
+    pytorch = '''
+train_loader = Dataloader(
+    train_dataset, 
+    batch_size = CFG.batch_size,
+    shuffle = True, 
+)
+
+validation_loader = Dataloader(
+    validation_dataset,
+    batch_size = CFG.batch_size,
+    shuffle = True,
+)
+
+test_loader = Dataloader(
+    test_dataset, 
+    batch_size = CFG.batch_size,
+    shuffle = True, 
 )
     '''
     st.code(pytorch, language)
+
+with tab_2:
+    haiku = '''
+
+    '''
+    st.code(haiku, language)
+
+
 
 st.subheader('Loss function')
 
@@ -633,20 +770,22 @@ scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
 
 st.header('References', anchor='References')
 
+st.write('https://www.cs.toronto.edu/~kriz/cifar.html')
+
 # Section for Citations
 
 st.header('Citations', anchor='Citations')
 
 
-tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
+tab_pytorch, tab_haiku = st.tabs(["PyTorch", "Haiku"])
 
-with tab_1:
+with tab_pytorch:
     pytorch = '''
 
     '''
     st.code(pytorch, language)
 
-with tab_2:
+with tab_haiku:
     haiku = '''
 
     '''
