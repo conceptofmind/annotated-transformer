@@ -43,7 +43,7 @@ st.markdown('''
     - [Learning Rate Scheduler](#LRS)
     - [Train Step](#TrainStep)
     - [Validation Step](#ValidationStep)
-    - [Training Loop](#TrainingLoop)
+    - [Train the Model](#TrainingLoop)
     - [Save Trained Model](#SaveModel)
     - [Load Saved Model](#LoadModel)
     - [Make Predictions](#MakePredictions)
@@ -661,36 +661,13 @@ test_transforms = T.Compose([
 st.subheader('Dataset', anchor='Dataset')
 
 st.write('''
-Here is an example of how to load the Fashion-MNIST dataset from TorchVision. Fashion-MNIST is a dataset of Zalando’s article images consisting of 60,000 training examples and 10,000 test examples. Each example comprises a 28×28 grayscale image and an associated label from one of 10 classes.
+The CIFAR-10 (Canadian Institute For Advanced Research) dataset is one of the most widely used datasets for benchmarking research in computer vision and machine learning. It is a subset of the 80 million tiny images dataset. The dataset consists of 60000 (32x32) labeled color images in 10 different classes. There are 6000 images per class. The classes are airplane, automobile, bird, cat, deer, dog, frog, horse, ship, and truck. The data is split into 50000 training images (five batches of 10000) and 10000 test images. The training batches contain 5000 randomnly selected images from each class while the test set includes 1000 from each.
 
-We load the FashionMNIST Dataset with the following parameters:
-- root is the path where the train/test data is stored,
-
-- train specifies training or test dataset,
-
-- download=True downloads the data from the internet if it’s not available at root.
-
-- transform and target_transform specify the feature and label transformations
-
-
-
-
-The CIFAR-10 dataset consists of 60000 32x32 colour images in 10 classes, with 6000 images per class. There are 50000 
-training images and 10000 test images.
-
-The dataset is divided into five training batches and one test batch, each with 10000 images. The test batch contains 
-exactly 1000 randomly-selected images from each class. The training batches contain the remaining images in random 
-order, but some training batches may contain more images from one class than another. Between them, the training batches
- contain exactly 5000 images from each class.
- 
- 
-The CIFAR-10 dataset (Canadian Institute For Advanced Research) is a collection of images that are commonly used to train machine learning and computer vision algorithms. It is one of the most widely used datasets for machine learning research.[1][2] The CIFAR-10 dataset contains 60,000 32x32 color images in 10 different classes.[3] The 10 different classes represent airplanes, cars, birds, cats, deer, dogs, frogs, horses, ships, and trucks. There are 6,000 images of each class.[4]
-
-Computer algorithms for recognizing objects in photos often learn by example. CIFAR-10 is a set of images that can be used to teach a computer how to recognize objects. Since the images in CIFAR-10 are low-resolution (32x32), this dataset can allow researchers to quickly try different algorithms to see what works.
-
-CIFAR-10 is a labeled subset of the 80 million tiny images dataset. When the dataset was created, students were paid to label all of the images.[5]
-
-Various kinds of convolutional neural networks tend to be the best at recognizing the images in CIFAR-10.
+Load the CIFAR-10 dataset from TorchVision with the following parameters: 
+- `root`: a path to where the dataset is stored. We define a directory, `'./cifar_data/'`, that will be created in this case.
+- `train`: specifies whether the dataset is for training or not. The train parameter should only be set to `True` for `train_dataset`. It should be set to `False` in `test_dataset`.
+- `download`: whether or not to download the dataset from the internet, if it is not already available in root. If you do not already have the dataset you will want this set to `True`.
+- `transform`: apply image augmentations and transformations to the dataset. Previously we defined transformations using `AutoAugment` for CIFAR-10.
 ''')
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
@@ -698,22 +675,37 @@ tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 with tab_1:
     pytorch = '''
 train_dataset = CIFAR10(
-    root = './cifar_data/,
+    root = './cifar_data/',
     train = True,
+    download = True,
     transform = train_transform,
 )
 
 test_dataset = CIFAR10(
-    root = './cifar_data/,
+    root = './cifar_data/',
     train = False,
+    download = True,
     transform = test_transform,
 )
+    '''
+    st.code(pytorch, language)
 
+st.write('''
+In order to create a validation split, we will use PyTorch's `torch.utils.data.random_split` to randomnly split the CIFAR10 `test_dataset` into a new non-overlapping `validation_dataset` and `test_dataset`. The `validation_dataset` will be 80% of the data in the original test set. The new `test_dataset` will encompass the remaining 20%. Additionally we will set a generator with the seed in the configuration to reproduce results.
+
+
+''')
+
+tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
+
+with tab_1:
+    pytorch = '''
 validation_dataset_size = int(len(test_dataset) * 0.8)
 test_dataset_size = len(test_dataset) - validation_dataset_size
 validation_dataset, test_dataset = torch.utils.data.random_split(test_dataset, [validation_dataset_size, test_dataset_size])
     '''
     st.code(pytorch, language)
+
 
 with tab_2:
     haiku = '''
@@ -774,6 +766,10 @@ with tab_2:
 # section for loss function
 
 st.subheader('Loss function')
+
+st.write('''
+
+''')
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
@@ -945,6 +941,11 @@ with tab_haiku:
     '''
     st.code(haiku, language)
 
+# Section for distributed training
+
+st.header('Distributed Training', anchor='DistributedTraining')
+
+st.subheader('')
 
 # Section for References
 
