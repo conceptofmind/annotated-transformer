@@ -613,7 +613,9 @@ st.header('Training', anchor='Training')
 
 st.subheader('Initialize Vision Transformer Model', anchor='InitializeModel')
 
-st.write('')
+st.write('''
+
+''')
 
 tab_pytorch, tab_haiku = st.tabs(["PyTorch", "Haiku"])
 
@@ -642,7 +644,9 @@ with tab_haiku:
 
 st.subheader('Image Augmentation', anchor='ImageAugmentation')
 
-st.write('')
+st.write('''
+
+''')
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
