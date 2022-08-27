@@ -73,7 +73,8 @@ st.write('''
 
 st.header('Prerequisites', anchor='Prerequisites')
 
-st.write('''It is expected that you at least have some basic working knowledge of Python. Deep learning greatly benefits from GPU or TPU acceleration. 
+st.write('''It is expected that you at least have some basic working knowledge of Python and PyTorch or Haiku. 
+Deep learning greatly benefits from GPU or TPU acceleration. 
 You will want to have access to a machine with one or many accelerated devices. 
 If you do not have access to a GPU or TPU you can still use a CPU, although training times will be significantly longer. 
  
@@ -108,7 +109,7 @@ $ pip3 install -U torch torchvision torchaudio
     '''
     st.code(pytorch_installs, language='bash')
 
-    st.write("Check if PyTorch was successfully installed: ")
+    st.write("Check if PyTorch was successfully installed from the command line with:")
 
     st.code('python3 -c "import torch; print(torch.__version__)"', language='bash')
 
@@ -153,7 +154,9 @@ from einops.layers.torch import Rearrange
 
 st.subheader('Configuration', anchor='Configuration')
 
-st.write(" A configuration class for defining global variables to be used for training the model.")
+st.write("""A configuration class for defining global variables to be used for training the model.
+Each of these variables are explained in detail in the relevant sections below.
+""")
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
