@@ -73,12 +73,24 @@ st.write('''
 
 st.header('Prerequisites', anchor='Prerequisites')
 
-st.write("You will first need to install either DeepMind's Haiku and Google's Jax, or Facebook's PyTorch. "
-         "Deep learning greatly benefits from GPU or TPU acceleration so you will want to have access to one or many.")
+st.write('''It is expected that you at least have some basic working knowledge of Python. Deep learning greatly benefits from GPU or TPU acceleration. 
+You will want to have access to a machine with one or many accelerated devices. 
+If you do not have access to a GPU or TPU you can still use a CPU, although training times will be significantly longer. 
+ 
+You can check the version of CUDA from the command line with:
+
+`nvcc --version`
+
+Or check the devices available on your machine with:
+
+`nvidia-smi` 
+''')
 
 # Installation section
 
 st.subheader('Installation', anchor='Installs')
+
+st.write("You will first need to install either DeepMind's Haiku and Google's Jax, or Facebook's PyTorch.")
 
 installs_tab_1, installs_tab_2 = st.tabs(["PyTorch", "Haiku"])
 
@@ -95,6 +107,10 @@ with installs_tab_1:
 $ pip3 install -U torch torchvision torchaudio
     '''
     st.code(pytorch_installs, language='bash')
+
+    st.write("Check if PyTorch was successfully installed: ")
+
+    st.code('python3 -c "import torch; print(torch.__version__)"', language='bash')
 
 # Imports section
 
@@ -691,9 +707,12 @@ test_dataset = CIFAR10(
     st.code(pytorch, language)
 
 st.write('''
-In order to create a validation split, we will use PyTorch's `torch.utils.data.random_split` to randomnly split the CIFAR10 `test_dataset` into a new non-overlapping `validation_dataset` and `test_dataset`. The `validation_dataset` will be 80% of the data in the original test set. The new `test_dataset` will encompass the remaining 20%. Additionally we will set a generator with the seed in the configuration to reproduce results.
+In order to create a validation split, we will use PyTorch's `torch.utils.data.random_split` to randomly split the CIFAR10 `test_dataset` into a new non-overlapping `validation_dataset` and `test_dataset`. The `validation_dataset` will be 80% of the data in the original test set. The new `test_dataset` will encompass the remaining 20%. Additionally, we will set a generator with the seed from the configuration to reproduce the same results.
 
-
+PyTorch's `torch.utils.data.random_split` takes the parameters:
+- `dataset`: The dataset which will be split. In our case we will want to split the previously defined `test_dataset`.
+- `length`: The lengths for the dataset split. Here we will use an 80:20 split.
+- `generator`: Used to reproduce the same split results when set with a manual seed. Use the `seed` variable defined in the configuration.
 ''')
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
@@ -702,7 +721,11 @@ with tab_1:
     pytorch = '''
 validation_dataset_size = int(len(test_dataset) * 0.8)
 test_dataset_size = len(test_dataset) - validation_dataset_size
-validation_dataset, test_dataset = torch.utils.data.random_split(test_dataset, [validation_dataset_size, test_dataset_size])
+validation_dataset, test_dataset = torch.utils.data.random_split(
+    test_dataset, 
+    [validation_dataset_size, test_dataset_size],
+    generator=torch.Generator().manual_seed(CFG.seed)    
+    )
     '''
     st.code(pytorch, language)
 
