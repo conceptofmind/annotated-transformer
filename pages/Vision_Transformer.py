@@ -28,8 +28,8 @@ st.markdown('''
     - [Configuration](#Configuration)
     - [Helper Functions](#Helpers)
 - [Model Architecture](#Model)
-    - [Pre-Normalization Layer](#prenorm)
-    - [Feed-Forward Network](#feedforward)
+    - [Pre-Normalization](#prenorm)
+    - [Multilayer Perceptron](#feedforward)
     - [Attention Mechanism](#attention)
     - [Transformer Network](#transformer)
     - [Vision Transformer Model](#visiontransformer)
@@ -221,7 +221,7 @@ def pair(t):
 
 st.header('Model Architecture', anchor='Model')
 
-st.subheader('Pre-Normalization Layer', anchor='prenorm')
+st.subheader('Pre-Normalization', anchor='prenorm')
 
 st.write('''
 Layer normalisation explicitly controls the mean and variance of individual neural network activations
@@ -272,15 +272,14 @@ class PreNorm(nn.Module):
     '''
     st.code(pytorch, language)
 
-st.subheader('Feed-Forward Network', anchor='feedforward')
+st.subheader('Multilayer Perceptron', anchor='feedforward')
 
 
 
 st.write("""
-We propose the Gaussian Error Linear Unit (GELU), a high-performing neural
-network activation function. The GELU activation function is xΦ(x), where Φ(x)
-the standard Gaussian cumulative distribution function. The GELU nonlinearity
-weights inputs by their value
+We propose the Gaussian Error Linear Unit (GELU), a high-performing neuralnetwork activation function. 
+The GELU activation function is xΦ(x), where Φ(x) the standard Gaussian cumulative distribution function. 
+The GELU nonlinearity weights inputs by their value
 """)
 st.write("The Gaussian Error Linear Unit (GELU) is defined as:")
 st.latex(r"""
@@ -323,7 +322,7 @@ class MLP(hk.Module):
 
 with tab_1:
     pytorch = '''
-class FeedForward(nn.Module):
+class MLP(nn.Module):
     def __init__(self, dim, hidden_dim, dropout = 0.):
         super().__init__()
         self.net = nn.Sequential(
@@ -339,6 +338,15 @@ class FeedForward(nn.Module):
     st.code(pytorch, language)
 
 st.subheader('Attention Mechanism', anchor='attention')
+
+st.write("""
+An attention function can be described as mapping a query and a set of key-value pairs to an output,
+where the query, keys, values, and output are all vectors. The output is computed as a weighted sum
+of the values, where the weight assigned to each value is computed by a compatibility function of the
+query with the corresponding key.
+
+
+""")
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
@@ -419,6 +427,12 @@ st.subheader('Transformer Encoder', anchor='transformer')
 st.write("""
 The Transformer encoder (Vaswani et al., 2017) consists of alternating layers of multiheaded selfattention (MSA, see Appendix A) and MLP blocks (Eq. 2, 3). Layernorm (LN) is applied before
 every block, and residual connections after every block (Wang et al., 2019; Baevski & Auli, 2019).
+Encoder: The encoder is composed of a stack of N = 6 identical layers. Each layer has two
+sub-layers. The first is a multi-head self-attention mechanism, and the second is a simple, positionwise fully connected feed-forward network. We employ a residual connection [11] around each of
+the two sub-layers, followed by layer normalization [1]. That is, the output of each sub-layer is
+LayerNorm(x + Sublayer(x)), where Sublayer(x) is the function implemented by the sub-layer
+itself. To facilitate these residual connections, all sub-layers in the model, as well as the embedding
+layers, produce outputs of dimension dmodel = 512.
 """)
 
 
@@ -445,14 +459,14 @@ class Transformer(hk.Module):
 
 with tab_1:
     pytorch = '''
-class Transformer(nn.Module):
+class TransformerEncoder(nn.Module):
     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):
         super().__init__()
         self.layers = nn.ModuleList([])
         for _ in range(depth):
             self.layers.append(nn.ModuleList([
                 PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)),
-                PreNorm(dim, FeedForward(dim, mlp_dim, dropout = dropout))
+                PreNorm(dim, MLP(dim, mlp_dim, dropout = dropout))
             ]))
     def forward(self, x):
         for attn, ff in self.layers:
@@ -579,7 +593,7 @@ class ViT(nn.Module):
         self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
         self.dropout = nn.Dropout(emb_dropout)
 
-        self.transformer = Transformer(dim, depth, heads, dim_head, mlp_dim, dropout)
+        self.transformer = TransformerEncoder(dim, depth, heads, dim_head, mlp_dim, dropout)
 
         self.pool = pool
         self.to_latent = nn.Identity()
