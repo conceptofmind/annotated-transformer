@@ -226,9 +226,20 @@ st.subheader('Pre-Normalization', anchor='prenorm')
 st.write('''
 Layer normalisation explicitly controls the mean and variance of individual neural network activations
 
-Next, the output reinforced by residual connections goes through a layer normalization layer. Layer normalization, similar to batch normalization is a way to reduce the “covariate shift” in neural networks allowing them to be trained faster and achieve better performance. Covariate shift refers to changes in the distribution of neural network activations (caused by changes in the data distribution), that transpires as the model goes through model training. Such changes in the distribution hurts consistency during model training and negatively impact the model. It was introduced in the paper, “Layer Normalization” by Ba et. al. (https://arxiv.org/pdf/1607.06450.pdf).
+Next, the output reinforced by residual connections goes through a layer normalization layer. Layer normalization, 
+similar to batch normalization is a way to reduce the “covariate shift” in neural networks allowing them to be trained 
+faster and achieve better performance. Covariate shift refers to changes in the distribution of neural network 
+activations (caused by changes in the data distribution), that transpires as the model goes through model training. 
+Such changes in the distribution hurts consistency during model training and negatively impact the model. It was 
+introduced in the paper, “Layer Normalization” by Ba et. al. (https://arxiv.org/pdf/1607.06450.pdf).
 
-However, layer normalization computes mean and variance (i.e. the normalization terms) of the activations in such a way that, the normalization terms are the same for every hidden unit. In other words, layer normalization has a single mean and a variance value for all the hidden units in a layer. This is in contrast to batch normalization that maintains individual mean and variance values for each hidden unit in a layer.  Moreover, unlike batch normalization, layer normalization does not average over the samples in the batch, rather leave the averaging out and have different normalization terms for different inputs. By having a mean and variance per-sample, layer normalization gets rid of the dependency on the mini-batch size. For more details about this method, please refer the original paper.
+However, layer normalization computes mean and variance (i.e. the normalization terms) of the activations in such a way 
+that, the normalization terms are the same for every hidden unit. In other words, layer normalization has a single mean 
+and a variance value for all the hidden units in a layer. This is in contrast to batch normalization that maintains 
+individual mean and variance values for each hidden unit in a layer.  Moreover, unlike batch normalization, layer 
+normalization does not average over the samples in the batch, rather leave the averaging out and have different 
+normalization terms for different inputs. By having a mean and variance per-sample, layer normalization gets rid of the 
+dependency on the mini-batch size. For more details about this method, please refer the original paper.
 
 ''')
 
@@ -272,9 +283,33 @@ class PreNorm(nn.Module):
     '''
     st.code(pytorch, language)
 
+st.write("""
+This is a class implementation of a pre-normalization layer, which is a composite layer consisting of a layer 
+normalization layer followed by another layer or function. The `__init__` method initializes the pre-normalization layer 
+with a given input dimension, `dim`, and a function, `fn`, which represents the layer or function that will be applied 
+after the normalization layer.
+
+The `forward` method defines the forward pass of the pre-normalization layer, where the input, `x`, is first passed through 
+a layer normalization layer with `dim` dimensions. The output of the normalization layer is then passed through the 
+function `fn`, along with any additional keyword arguments provided in `kwargs`. The output of the `forward` method is the 
+result of applying the `fn` function to the normalized input.
+
+The pre-normalization layer allows the input to be normalized before it is passed to the `fn` function, which can help 
+improve the performance and stability of the model. This is especially useful when the `fn` function is a non-linear 
+function, such as an activation function, that can benefit from input normalization.
+""")
+
+st.write("""
+`self.norm` is an instance of the `nn.LayerNorm` class from PyTorch. This class represents a layer normalization operation, 
+which is a type of normalization that is applied to the inputs of a layer in a neural network. The `nn.LayerNorm` class 
+takes a single argument `dim`, which specifies the dimensions of the input data that will be normalized. In this case, the 
+value of `dim` is passed directly to the `nn.LayerNorm` class, so the dimensions of the input data will be the same as the 
+value of `dim`.
+""")
+
+
+
 st.subheader('Multilayer Perceptron', anchor='feedforward')
-
-
 
 st.write("""
 We propose the Gaussian Error Linear Unit (GELU), a high-performing neuralnetwork activation function. 
@@ -289,16 +324,45 @@ st.write("GELU is approximated with if greater feedforward speed is worth the co
 st.latex(r'''
 \text{GELU}(x) = 0.5 * x * \bigg(1 + \tanh\bigg(\sqrt{\frac 2 \pi} * (x + 0.044715 * x^3)\bigg)\bigg)
 ''')
+st.write("""
+The GELU (Gaussian Error Linear Unit) function is a type of activation function used in neural networks. It is defined 
+as a function of the input, `x`, as shown in the equation above. The GELU function is a smooth approximation of the 
+rectified linear unit (ReLU) activation function and has been shown to improve the performance of neural networks in 
+some cases. The GELU function outputs values in the range [0, 1], with input values close to 0 resulting in output 
+values close to 0 and input values close to 1 resulting in output values close to 1. This allows the GELU function to 
+retain information about the magnitude of the input, which can be useful for certain types of learning tasks.
+""")
+
+st.write("""
+`nn.GELU()` is a PyTorch function that creates a GELU activation function. The GELU activation function is a 
+differentiable function that takes as input a tensor with any shape and returns a tensor with the same shape. The 
+function applies the GELU function elementwise to the input tensor, resulting in a tensor of the same shape with values 
+in the range [0, 1]. This allows the GELU activation function to be used in the forward pass of a neural network, 
+allowing the network to learn non-linear transformations of the input data.
+""")
 
 st.write('dropout')
 st.write("""
-During training, randomly zeroes some of the elements of the input tensor with probability p using samples from a Bernoulli distribution. Each channel will be zeroed out independently on every forward call.
+During training, randomly zeroes some of the elements of the input tensor with probability p using samples from a 
+Bernoulli distribution. Each channel will be zeroed out independently on every forward call.
 
-This has proven to be an effective technique for regularization and preventing the co-adaptation of neurons as described in the paper Improving neural networks by preventing co-adaptation of feature detectors .
+This has proven to be an effective technique for regularization and preventing the co-adaptation of neurons as 
+described in the paper Improving neural networks by preventing co-adaptation of feature detectors .
 
 Furthermore, the outputs are scaled by a factor of \frac{1}{1-p} 
   during training. This means that during evaluation the module simply computes an identity function.
 p – probability of an element to be zeroed. Default: 0.5
+""")
+
+st.write("""
+`nn.Dropout(dropout)` is a PyTorch function that creates a dropout layer with a given dropout rate. The dropout layer is 
+a regularization technique that randomly sets a fraction of the input elements to 0 during the forward pass, with the 
+fraction determined by the dropout rate. This has the effect of reducing the dependence of each output element on a 
+specific subset of the input elements, making the model less susceptible to overfitting and improving generalization 
+performance. The `dropout` argument determines the dropout rate, which is the fraction of input elements that will be set 
+to 0. A dropout rate of 0 means that no elements will be dropped, while a dropout rate of 1 means that all elements 
+will be dropped. The default value for the `dropout` argument is 0, which means that no elements will be dropped by the 
+dropout layer.
 """)
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
@@ -337,6 +401,41 @@ class MLP(nn.Module):
     '''
     st.code(pytorch, language)
 
+st.write("""
+This is a class implementation of a multi-layer perceptron (MLP), a type of neural network. The `__init__` method 
+initializes the MLP with a given input dimension, `dim`, and hidden dimension, `hidden_dim`, as well as a dropout rate, 
+`dropout`, which is set to 0 by default.
+
+The `forward` method defines the forward pass of the MLP, where the input, `x`, is passed through a series of linear layers 
+followed by a GELU non-linearity and dropout regularization. The output of the forward pass is the result of passing 
+the input through the defined sequence of layers.
+
+The `__init__` method initializes the MLP by defining the sequence of layers that make up the network. 
+The first layer is a linear layer with `dim` input dimensions and `hidden_dim` output dimensions. This layer is followed by 
+a GELU activation function and a dropout layer with a dropout rate of `dropout`. The next layer is another linear layer 
+with `hidden_dim` input dimensions and `dim` output dimensions, followed by another dropout layer with the same dropout rate. 
+The sequence of layers is then stored in the `net` attribute of the MLP. This sequence of layers defines the architecture 
+of the MLP and determines how the input data is transformed as it passes through the network.
+
+The `nn.Sequential` class is a PyTorch class that allows a sequence of layers to be defined and treated as a single, 
+composite layer. In this case, the `nn.Sequential` class is used to define a sequence of five layers: a linear layer, 
+a GELU activation function, a dropout layer, another linear layer, and another dropout layer. This sequence of layers 
+is then treated as a single, composite layer that can be used in the forward pass of the MLP.
+""")
+
+st.write("""
+This code creates a neural network using PyTorch, which is a popular deep learning framework. The network consists of a 
+sequence of five layers, which are defined using the `nn.Sequential` class. The first layer is a linear layer, which 
+applies a linear transformation to the input data. The second layer is a GELU (Gaussian Error Linear Unit) activation 
+layer, which applies the GELU nonlinearity to the output of the previous layer. The GELU nonlinearity is a smooth, 
+monotonic function that has been shown to improve the performance of deep learning models. The third layer is a dropout 
+layer, which randomly sets some of the output values to zero. This is a regularization technique that helps to prevent 
+the model from overfitting to the training data. The fourth layer is another linear layer, which applies another linear 
+transformation to the output of the previous layer. The fifth and final layer is another dropout layer, which again 
+randomly sets some of the output values to zero. The resulting network takes an input vector of size `dim`, applies a
+ series of linear and nonlinear transformations to it, and produces an output vector of the same size.
+""")
+
 st.subheader('Attention Mechanism', anchor='attention')
 
 st.write("""
@@ -345,7 +444,17 @@ where the query, keys, values, and output are all vectors. The output is compute
 of the values, where the weight assigned to each value is computed by a compatibility function of the
 query with the corresponding key.
 
+This code defines a class called `Attention` which extends the `nn.Module` class from the PyTorch library. The `Attention` 
+class is a neural network module for computing attention. It has several key components:
 
+- `__init__`: the constructor function for the class, which initializes the various layers and submodules of the 
+    network, such as a softmax layer for computing attention, dropout layers for regularization, and linear layers for 
+    projecting the input tensor into different subspaces.
+
+- `forward`: the forward propagation function, which takes an input tensor x and applies the various layers of the 
+    network in sequence to produce the output. This includes computing dot products between the query, key, and value 
+    tensors, applying softmax to the dot products to compute the attention weights, and then using these attention weights 
+    to compute the weighted sum of the values.
 """)
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
@@ -420,6 +529,118 @@ class Attention(nn.Module):
     '''
     st.code(pytorch, language)
 
+st.write("""
+The `Attention` class can be used as a building block for more complex neural networks that need to compute attention 
+over some input. By specifying different values for the hyperparameters `dim`, `heads`, `dim_head`, and `dropout`, the behavior 
+of the attention mechanism can be customized to suit different tasks and applications.
+""")
+
+st.write("""
+The `__init__` function of the `Attention` class is the constructor function, which is called when a new instance of 
+the class is created. It initializes the various layers and submodules of the attention network, such as the softmax 
+layer, dropout layers, and linear layers. 
+""")
+
+st.code("""
+def __init__(self, dim, heads = 8, dim_head = 64, dropout = 0.):
+    super().__init__()
+    inner_dim = dim_head *  heads
+    project_out = not (heads == 1 and dim_head == dim)
+
+    self.heads = heads
+    self.scale = dim_head ** -0.5
+
+    self.attend = nn.Softmax(dim = -1)
+    self.dropout = nn.Dropout(dropout)
+
+    self.to_qkv = nn.Linear(dim, inner_dim * 3, bias = False)
+
+    self.to_out = nn.Sequential(
+        nn.Linear(inner_dim, dim),
+        nn.Dropout(dropout)
+    ) if project_out else nn.Identity()
+""", language='python')
+
+st.write("""
+Here is a detailed breakdown of what happens in each line of the `__init__` function:
+
+1. The `super().__init__()` line calls the constructor of the `nn.Module` class, which is the base class for all neural 
+    network modules in PyTorch. This initializes the `nn.Module` class with the `Attention` class as its child.
+
+2. The `inner_dim` variable is set to the product of the `dim_head` and `heads` hyperparameters. This will be the size of the 
+    inner subspaces that the input tensor is projected into by the `self.to_qkv` layer.
+
+3. The `project_out` variable is set to `True` if the number of heads is not equal to 1 or the dimension of the head is not 
+    equal to the original dimension of the input tensor. This will be used to determine whether the output tensor should be 
+    projected back into the original space of the input tensor.
+
+4. The `self.heads` attribute is set to the value of the heads hyperparameter. This specifies the number of heads in the 
+    attention mechanism.
+
+5. The `self.scale` attribute is set to the inverse square root of the dimension of the head tensor. This will be used to 
+    scale the dot products of the query and key tensors.
+
+6. The `self.attend` attribute is set to a new `nn.Softmax` layer, which will be used to compute the attention weights from 
+    the dot products of the query and key tensors.
+
+7. The `self.dropout` attribute is set to a new `nn.Dropout` layer, which will be used to apply dropout regularization to 
+    the attention weights tensor.
+
+8. The `self.to_qkv` attribute is set to a new linear layer, which will be used to project the input tensor into the 
+    query, key, and value subspaces.
+
+9. The `self.to_out` attribute is set to either a new `nn.Sequential` module containing a linear layer and a dropout layer, 
+    or an `nn.Identity` layer depending on the value of the `project_out` variable. This will be used to project the output 
+    tensor back into the original space of the input tensor if necessary.
+""")
+
+st.write("""
+The `forward` function of the `Attention` class takes an input tensor `x` and applies the attention mechanism to it. 
+""")
+
+st.code("""
+def forward(self, x):
+    qkv = self.to_qkv(x).chunk(3, dim = -1)
+    q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h = self.heads), qkv)
+
+    dots = torch.matmul(q, k.transpose(-1, -2)) * self.scale
+
+    attn = self.attend(dots)
+    attn = self.dropout(attn)
+
+    out = torch.matmul(attn, v)
+    out = rearrange(out, 'b h n d -> b n (h d)')
+    return self.to_out(out)
+""", language)
+
+st.write("""
+Here is a detailed breakdown of what happens in each line of the `forward` function:
+
+1. The input tensor `x` is projected into three subspaces using a linear layer `self.to_qkv`. These subspaces correspond to 
+    the query, key, and value tensors used in the attention mechanism. The resulting tensor is then split into three parts 
+    along the last dimension, using the `chunk` method.
+
+2. The query, key, and value tensors are rearranged using the `rearrange` function, which applies a specified reshaping 
+    operation to a tensor. In this case, the reshaping operation is defined by the string `'b n (h d) -> b h n d'`, which 
+    specifies that the tensors should be reshaped such that the batch and head dimensions are interleaved.
+
+3. The query and key tensors are multiplied together using the `torch.matmul` function, and then scaled by the value 
+    `self.scale`, which is the inverse square root of the dimensions of the head tensor. This produces a tensor of dot 
+    products, which can be interpreted as the similarity between each query and key.
+
+4. The dot products tensor is passed through the softmax function using the `self.attend` layer, which produces a tensor 
+    of attention weights. These weights represent the importance of each value in the output.
+
+5. The attention weights tensor is passed through the `self.dropout` layer, which applies dropout regularization to 
+    prevent overfitting.
+
+6. The attention weights tensor is multiplied by the value tensor, using the `torch.matmul` function, to compute the 
+    weighted sum of the values. This is the output of the attention mechanism.
+
+7. The output tensor is reshaped using the `rearrange` function and then passed through the `self.to_out layer`, which 
+    projects it back into the original space of the input tensor. This is the final output of the `forward` function.
+""")
+
 st.subheader('Transformer Encoder', anchor='transformer')
 
 #st.image('')
@@ -428,13 +649,31 @@ st.write("""
 The Transformer encoder (Vaswani et al., 2017) consists of alternating layers of multiheaded selfattention (MSA, see Appendix A) and MLP blocks (Eq. 2, 3). Layernorm (LN) is applied before
 every block, and residual connections after every block (Wang et al., 2019; Baevski & Auli, 2019).
 Encoder: The encoder is composed of a stack of N = 6 identical layers. Each layer has two
-sub-layers. The first is a multi-head self-attention mechanism, and the second is a simple, positionwise fully connected feed-forward network. We employ a residual connection [11] around each of
+sub-layers. The first is a multi-head self-attention mechanism, and the second is a simple, positionwise fully connected 
+feed-forward network. We employ a residual connection [11] around each of
 the two sub-layers, followed by layer normalization [1]. That is, the output of each sub-layer is
 LayerNorm(x + Sublayer(x)), where Sublayer(x) is the function implemented by the sub-layer
 itself. To facilitate these residual connections, all sub-layers in the model, as well as the embedding
 layers, produce outputs of dimension dmodel = 512.
 """)
 
+st.write("""
+The `TransformerEncoder` class extends the `nn.Module` class from the PyTorch library. It is a neural network module that 
+implements a transformer encoder, which is a type of recurrent neural network that uses self-attention to compute a 
+weighted sum of its inputs. It has several key components:
+
+- `__init__`: the constructor function for the class, which initializes the various layers and submodules of the network, 
+such as the `Attention` and `MLP` layers. It also creates a list of `PreNorm` layers, which are used to normalize the inputs 
+to the attention and `MLP` layers.
+
+- `forward`: the forward propagation function, which takes an input tensor `x` and applies the various layers of the network 
+in sequence to produce the output. This includes applying the attention and MLP layers, adding the output of each layer 
+to the input, and then returning the final result.
+
+The `TransformerEncoder` class can be used as a building block for more complex neural networks that need to compute 
+self-attention over some input. By specifying different values for the hyperparameters `dim`, `depth`, `heads`, `dim_head`, 
+`mlp_dim`, and `dropout`, the behavior of the transformer encoder can be customized to suit different tasks and applications.
+""")
 
 tab_1, tab_2 = st.tabs(["PyTorch", "Haiku"])
 
@@ -475,6 +714,46 @@ class TransformerEncoder(nn.Module):
         return x
     '''
     st.code(pytorch, language)
+
+st.code("""
+def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):
+    super().__init__()
+    self.layers = nn.ModuleList([])
+    for _ in range(depth):
+        self.layers.append(nn.ModuleList([
+            PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)),
+            PreNorm(dim, MLP(dim, mlp_dim, dropout = dropout))
+        ]))
+""", language)
+
+st.write("""
+The `__init__` function of the `TransformerEncoder` class is the constructor function, which is called when a new instance 
+of the class is created. It initializes the various layers and submodules of the transformer encoder, such as the 
+`Attention` and `MLP` layers. Here is a detailed breakdown of what happens in each line of the `__init__` function:
+
+1. The `super().__init__()` line calls the constructor of the `nn.Module` class, which is the base class for all neural 
+    network modules in PyTorch. This initializes the nn.Module class with the `TransformerEncoder` class as its child.
+
+2. The `self.layers` attribute is set to a new `nn.ModuleList` object, which is a list of neural network modules. This list 
+    will be used to store the `PreNorm` layers that normalize the inputs to the attention and MLP layers.
+
+3. A `for` loop iterates over the range of the `depth` hyperparameter, which specifies the number of layers in the transformer 
+    encoder. For each iteration of the loop, a new `PreNorm` layer is created for the attention and MLP layers, and then 
+    appended to the `self.layers` list.
+
+4. The `PreNorm` layers are created using the `dim` hyperparameter, which specifies the dimension of the input and output 
+    tensors, and the `Attention` and `MLP` layers, which are initialized with the specified hyperparameters. The `PreNorm` layers 
+    are used to normalize the inputs to the attention and MLP layers, which helps improve the stability and performance of 
+    the transformer encoder.
+""")
+
+st.code("""
+def forward(self, x):
+    for attn, ff in self.layers:
+        x = attn(x) + x
+        x = ff(x) + x
+    return x
+""", language)
 
 st.subheader('Vision Transformer Model', anchor='visiontransformer')
 
@@ -621,6 +900,72 @@ class ViT(nn.Module):
     '''
     st.code(pytorch, language)
 
+st.write("""
+This is a class implementation of a vision transformer (ViT), a type of neural network that uses self-attention 
+mechanisms to process visual data. The `__init__` method initializes the ViT with several hyperparameters, including the 
+size of the input images, the patch size, the number of classes, the dimension of the hidden layers, the depth of the 
+transformer encoder, the number of attention heads, the dimension of the MLP layers, the pooling method, the number of 
+channels in the input images, and the dropout rate.
+
+The `forward` method defines the forward pass of the ViT, where the input image is first split into patches and 
+transformed into patch embeddings using a linear layer. The patch embeddings are then concatenated with a special 
+"class" token and passed through a transformer encoder, which applies self-attention mechanisms to the input. The 
+output of the transformer encoder is then either pooled using mean pooling or reduced to a single vector using the 
+"class" token, depending on the `pool` parameter. The final output of the ViT is the result of passing the pooled or 
+reduced vector through a linear layer and a layer normalization layer.
+
+The ViT model is a flexible and powerful model that can be used for a wide range of computer vision tasks. It has the 
+ability to process inputs of arbitrary size and to capture long-range dependencies in data, which makes it well-suited 
+for many types of visual data. However, it also has a large number of hyperparameters, which can make it challenging to 
+train and optimize.
+""")
+
+st.write("""
+The `__init__` method initializes the ViT with several hyperparameters that determine the architecture and behavior of 
+the model. The `image_size` parameter determines the size of the input images, which should be a tuple of the form 
+`(image_height, image_width)`. The `patch_size` parameter determines the size of the patches into which the input images 
+will be split, which should also be a tuple of the form `(patch_height, patch_width)`. The `num_classes` parameter 
+determines the number of classes that the ViT will be trained to predict. The `dim` parameter determines the dimension of 
+the hidden layers in the ViT.
+
+The `depth` parameter determines the number of layers in the transformer encoder, which is the core component of the ViT 
+that applies self-attention mechanisms to the input. The `heads` parameter determines the number of attention heads that 
+will be used in the transformer encoder. The `mlp_dim` parameter determines the dimension of the MLP layers that are used 
+in the transformer encoder. The `pool` parameter determines the pooling method that will be used to reduce the output of 
+the transformer encoder, which can be either 'cls' (class token pooling) or 'mean' (mean pooling).
+
+The `channels` parameter determines the number of channels in the input images, which should be 3 for color images and 1 
+for grayscale images. The `dim_head` parameter determines the dimension of the attention heads used in the transformer 
+encoder. The `dropout` parameter determines the dropout rate that will be used in the transformer encoder.
+
+The `emb_dropout` parameter determines the dropout rate that will be used on the patch embeddings after they are 
+concatenated with the "class" token.
+
+After the hyperparameters are set, the `__init__` method performs some checks to ensure that the input image dimensions 
+are divisible by the patch size and that the pool parameter is set to a valid value. If these checks fail, an error 
+message is printed.
+
+Next, the `__init__` method defines several layers that will be used in the forward pass of the ViT. The 
+`to_patch_embedding` layer is a sequential layer that first rearranges the input tensor to group the patches together and 
+then applies a linear layer to transform the patches into patch embeddings. The `pos_embedding` layer is a parameter 
+tensor that is used to add positional information to the patch embeddings. The `cls_token` layer is a parameter tensor 
+that represents the "class" token that will be concatenated with the patch embeddings. The `dropout` layer is a dropout 
+layer that will be applied to the patch embeddings after they are concatenated with the "class" token.
+
+The `transformer` layer is a transformer encoder that will be applied to the concatenated patch embeddings and "class" 
+token. The transformer encoder applies self-attention mechanisms to the input using the specified number of layers, 
+attention heads, and MLP dimensions.
+
+The `pool` variable is used to store the value of the `pool` parameter, which determines the pooling method that will be 
+used on the output of the transformer encoder. The `to_latent` layer is an identity layer that will be applied to the 
+output of the transformer encoder before it is passed to the final linear layer.
+
+Finally, the `mlp_head` layer is a sequential layer that consists of a layer normalization layer followed by a linear 
+layer that maps the output of the transformer encoder to the predicted class probabilities.
+
+Once the layers have been defined, the __init__ method is complete and the ViT is ready to process input images.
+""")
+
 # Section for Training
 
 st.header('Training', anchor='Training')
@@ -655,7 +1000,25 @@ with tab_haiku:
     '''
     st.code(haiku, language)
 
+st.write("""
+The code you provided creates a new instance of the ViT class using the specified hyperparameters. The image_size 
+parameter is set to the CFG.image_size variable, which is assumed to be defined elsewhere in the code. The patch_size 
+parameter is set to 16, which means that the input images will be split into patches of size 16x16 pixels. The 
+num_classes parameter is set to CFG.num_classes, which is again assumed to be defined elsewhere.
 
+The dim parameter is set to 1024, which determines the dimension of the hidden layers in the ViT. The depth parameter 
+is set to 6, which determines the number of layers in the transformer encoder. The heads parameter is set to 16, which 
+determines the number of attention heads that will be used in the transformer encoder. The mlp_dim parameter is set to 
+2048, which determines the dimension of the MLP layers used in the transformer encoder.
+
+The dropout parameter is set to 0.1, which determines the dropout rate that will be used in the transformer encoder. 
+The emb_dropout parameter is set to 0.1, which determines the dropout rate that will be applied to the patch embeddings 
+after they are concatenated with the "class" token.
+
+After the ViT is created, the to method is called on the instance, passing in the CFG.device variable as an argument. 
+This is assumed to be a PyTorch device, such as a CPU or a GPU, which determines where the ViT will be run. This allows 
+the ViT to be run on different hardware, depending on the availability and capabilities of the device.
+""")
 st.subheader('Image Augmentation', anchor='ImageAugmentation')
 
 st.write('''
